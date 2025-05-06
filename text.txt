@@ -1,3 +1,29 @@
+*To-Be Process Flow:
+Input Codebase*
+Contains Autosys JIL files
+JIL jobs reference Shell Scripts
+Shell scripts invoke COBOL Programs
+*Parser Component*
+Parses JIL, Shell, and COBOL files
+Extracts metadata, dependencies, flow, and logic
+*Context Builder*(Preprocessing Layer)
+Builds structured data from parsed components
+Creates interconnected context (job–script–COBOL linkages)
+*RAG-Based Application (Retrieval-Augmented Generation)*
+Uses LLM with custom vector store for knowledge retrieval
+Queries processed data for insights like:
+What a job does
+Its upstream/downstream dependencies
+Business logic in COBOL
+*Knowledge Base + Query Layer*
+End-users can query the system for code understanding
+Supports semantic search, job lineage, purpose tracing
+
+
+
+
+
+
 Refactored Problem Statement
 Problem Statement:
 Understanding and documenting legacy code—especially complex business logic in COBOL, Java, and Unix—is time-consuming and error-prone. Developers often overlook critical logic, resulting in poor documentation and limited knowledge transfer. This leads to outdated or inconsistent documentation and increases the risk of skipping essential documentation steps.
