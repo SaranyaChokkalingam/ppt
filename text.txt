@@ -1,3 +1,23 @@
+Refactored Problem Statement
+Problem Statement:
+Understanding and documenting legacy code—especially complex business logic in COBOL, Java, and Unix—is time-consuming and error-prone. Developers often overlook critical logic, resulting in poor documentation and limited knowledge transfer. This leads to outdated or inconsistent documentation and increases the risk of skipping essential documentation steps.
+
+Goals:
+
+Develop an automated tool to analyze COBOL, Java, and Unix code, extract business logic, and generate clear documentation.
+Ensure documentation is continuously updated in real-time with code changes.
+Simplify legacy code understanding and reduce the learning curve for developers.
+Improve knowledge sharing across the team.
+Challenges:
+
+High complexity and diversity in business logic across COBOL, Java, and Unix codebases.
+Ensuring the accuracy and completeness of extracted logic.
+Minimizing manual errors and streamlining the workflow.
+Seamless integration with existing development processes.
+
+
+
+
 Great — here's a professionally revised and consolidated version of your content, structured for clarity and better presentation, especially useful for a proposal, project document, or stakeholder communication:
 
 ---
