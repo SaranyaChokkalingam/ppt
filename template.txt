@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeInsight</title>
+    <style>
+        :root {
+            --primary-green: #4CAF50;
+            --light-green: #E8F5E9;
+            --dark-green: #2E7D32;
+            --border-color: #BDBDBD;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: white;
+        }
+        
+        .header {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .tab-container {
+            display: flex;
+            background-color: var(--light-green);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-right: 1px solid var(--border-color);
+            font-weight: 600;
+        }
+        
+        .tab.active {
+            background-color: white;
+            border-bottom: 3px solid var(--primary-green);
+        }
+        
+        .content {
+            display: flex;
+            height: calc(100vh - 116px);
+        }
+        
+        .tree-container {
+            width: 300px;
+            border-right: 1px solid var(--border-color);
+            overflow: auto;
+            background-color: var(--light-green);
+        }
+        
+        .search-box {
+            padding: 10px;
+            display: flex;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+        
+        .tree {
+            padding: 10px;
+        }
+        
+        .folder {
+            margin-bottom: 8px;
+        }
+        
+        .folder-name {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .folder-name:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        
+        .folder-icon {
+            margin-right: 8px;
+            color: var(--dark-green);
+        }
+        
+        .folder-items {
+            margin-left: 24px;
+            display: none;
+        }
+        
+        .folder.open .folder-items {
+            display: block;
+        }
+        
+        .file {
+            padding: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: 4px;
+        }
+        
+        .file:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        
+        .file-icon {
+            margin-right: 8px;
+            color: var(--dark-green);
+        }
+        
+        .code-container {
+            flex: 2;
+            padding: 20px;
+            overflow: auto;
+        }
+        
+        .analysis-container {
+            flex: 1;
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            background-color: var(--light-green);
+            overflow: auto;
+        }
+        
+        .code-box {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: white;
+            padding: 15px;
+            font-family: Consolas, monospace;
+            overflow: auto;
+            height: 85%;
+        }
+        
+        .analysis-title {
+            font-weight: bold;
+            color: var(--dark-green);
+            margin-bottom: 10px;
+        }
+        
+        .analysis-content {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            height: 80%;
+            overflow: auto;
+        }
+        
+        .download-container {
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .download-box {
+            background-color: var(--light-green);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .download-title {
+            font-weight: bold;
+            color: var(--dark-green);
+            margin-bottom: 15px;
+        }
+        
+        .download-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .download-btn {
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .download-btn:hover {
+            background-color: var(--dark-green);
+        }
+        
+        .file-list {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            flex: 1;
+            overflow: auto;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-item-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .file-download {
+            color: var(--primary-green);
+            cursor: pointer;
+        }
+        
+        .file-download:hover {
+            color: var(--dark-green);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8V4H6v4"></path>
+                    <path d="M6 20h12V8H6v12z"></path>
+                    <path d="M10 12l4 4"></path>
+                    <path d="M10 16l4-4"></path>
+                </svg>
+            </div>
+            <div class="logo-text">CodeInsight</div>
+        </div>
+    </div>
+    
+    <div class="tab-container">
+        <div class="tab active" onclick="showTab('code-analysis')">Code Analysis</div>
+        <div class="tab" onclick="showTab('document-download')">Document Download</div>
+    </div>
+    
+    <div id="code-analysis-content" class="content">
+        <div class="tree-container">
+            <div class="search-box">
+                <input type="text" placeholder="Search files...">
+            </div>
+            <div class="tree">
+                <div class="folder open">
+                    <div class="folder-name" onclick="toggleFolder(this)">
+                        <span class="folder-icon">📁</span>
+                        <span>autosys</span>
+                    </div>
+                    <div class="folder-items">
+                        <div class="file">
+                            <span class="file-icon">📄</span>
+                            <span>job_process.sh</span>
+                        </div>
+                        <div class="file">
+                            <span class="file-icon">📄</span>
+                            <span>data_transfer.jil</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="folder">
+                    <div class="folder-name" onclick="toggleFolder(this)">
+                        <span class="folder-icon">📁</span>
+                        <span>unix</span>
+                    </div>
+                    <div class="folder-items">
+                        <div class="file">
+                            <span class="file-icon">📄</span>
+                            <span>export_data.sh</span>
+                        </div>
+                        <div class="file">
+                            <span class="file-icon">📄</span>
+                            <span>process_files.sh</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="folder">
+                    <div class="folder-name" onclick="toggleFolder(this)">
+                        <span class="folder-icon">📁</span>
+                        <span>java</span>
+                    </div>
+                    <div class="folder-items">
+                        <div class="file">
+                            <span class="file-icon">📄</span>
+                            <span>DataProcessor.java</span>
+                        </div>
+                        <div class="file">
+                            <span class="file-icon">📄</span>
+                            <span>FileHandler.java</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="folder">
+                    <div class="folder-name" onclick="toggleFolder(this)">
+                        <span class="folder-icon">📁</span>
+                        <span>cobol</span>
+                    </div>
+                    <div class="folder-items">
+                        <div class="file">
+                            <span class="file-icon">📄</span>
+                            <span>CUSTOMER.cbl</span>
+                        </div>
+                        <div class="file">
+                            <span class="file-icon">📄</span>
+                            <span>ACCOUNT.cbl</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="code-container">
+            <div class="code-box">
+                /* Sample Autosys job */
+                /* job_process.sh */
+                
+                insert_job: PROCESS_DATA   job_type: c
+                command: /scripts/process_data.sh
+                machine: server01
+                owner: autosys
+                permission: gx,ge,wx
+                date_conditions: 1
+                days_of_week: all
+                start_times: "02:00"
+                alarm_if_fail: 1
+                description: "Process daily data files"
+            </div>
+        </div>
+        
+        <div class="analysis-container">
+            <div class="analysis-title">Job Analysis</div>
+            <div class="analysis-content">
+                <h3>PROCESS_DATA Job Summary</h3>
+                <p>This is a command job that runs a shell script to process data files.</p>
+                
+                <h4>Key Details:</h4>
+                <ul>
+                    <li>Runs on: server01</li>
+                    <li>Owner: autosys</li>
+                    <li>Schedule: Daily at 2:00 AM</li>
+                    <li>Alerts are configured on failure</li>
+                </ul>
+                
+                <h4>Dependencies:</h4>
+                <p>No dependencies are defined for this job.</p>
+                
+                <h4>Recommendations:</h4>
+                <ul>
+                    <li>Consider adding job dependencies to ensure proper execution order</li>
+                    <li>Add notification emails for critical failures</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div id="document-download-content" class="content" style="display: none;">
+        <div class="tree-container">
+            <div class="search-box">
+                <input type="text" placeholder="Search files...">
+            </div>
+            <div class="tree">
+                <div class="folder open">
+                    <div class="folder-name" onclick="toggleFolder(this)">
+                        <span class="folder-icon">📁</span>
+                        <span>autosys</span>
+                    </div>
+                    <div class="folder-items">
+                        <div class="file">
+                            <span class="file-icon">📄</span>
+                            <span>job_process.sh</span>
+                        </div>
+                        <div class="file">
+                            <span class="file-icon">📄</span>
+                            <span>data_transfer.jil</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="download-container" style="display: flex;">
+            <div class="download-box">
+                <div class="download-title">Download Selected Job Documentation</div>
+                <p>You have selected: <strong>job_process.sh</strong></p>
+                <div class="download-buttons">
+                    <button class="download-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download Full Documentation
+                    </button>
+                </div>
+            </div>
+            
+            <div class="download-title">Available Files</div>
+            <div class="file-list">
+                <div class="file-item">
+                    <div class="file-item-name">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        job_process.sh
+                    </div>
+                    <div class="file-download">Download</div>
+                </div>
+                <div class="file-item">
+                    <div class="file-item-name">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        job_process.java
+                    </div>
+                    <div class="file-download">Download</div>
+                </div>
+                <div class="file-item">
+                    <div class="file-item-name">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        job_process.cbl
+                    </div>
+                    <div class="file-download">Download</div>
+                </div>
+                <div class="file-item">
+                    <div class="file-item-name">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        Full Documentation.docx
+                    </div>
+                    <div class="file-download">Download</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFolder(element) {
+            const folder = element.parentElement;
+            folder.classList.toggle('open');
+        }
+        
+        function showTab(tabId) {
+            // Hide all content divs
+            document.getElementById('code-analysis-content').style.display = 'none';
+            document.getElementById('document-download-content').style.display = 'none';
+            
+            // Show the selected content div
+            document.getElementById(tabId + '-content').style.display = 'flex';
+            
+            // Update active tab styling
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase().includes(tabId.replace('-', ' '))) {
+                    tab.classList.add('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
