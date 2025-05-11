@@ -86,4 +86,15 @@ By automating the documentation process, the solution improves efficiency, enhan
 
 ---
 
+
+
+
+
+Title	CodeInsight			
+Tab	Code Analysis			Document Download
+Each tab Content	Tree Structure(with search which will display separate folders for : autosys, unix, java, cobol). When autosys is clicked, its corresponding unix, java/cobol files will be loaded	Code -- For unix steps, For java methods , For Cobol perform statement	Its detailed analysis , including summary to be displayed 	Display only Autosys job in tree structure and when clicked, download the full autosys, unix, java/cobol into a word document
+		There should be a tree structure(with search) and when each method/step is clicked , its detailed analysis should be displayed 		Also, download option file wise
+	so, if process_data.jil is clicked, only the dependent unix, cobol/java files should be loaded. Ideally only autosys folder will contain all the jil files. Remaining folders will be loaded as per dependency 			
+
+
 Would you like me to generate a slide deck, executive summary, or visual diagram to go with this?
