@@ -1,100 +1,53 @@
-*To-Be Process Flow:
-Input Codebase*
-Contains Autosys JIL files
-JIL jobs reference Shell Scripts
-Shell scripts invoke COBOL Programs
-*Parser Component*
-Parses JIL, Shell, and COBOL files
-Extracts metadata, dependencies, flow, and logic
-*Context Builder*(Preprocessing Layer)
-Builds structured data from parsed components
-Creates interconnected context (job–script–COBOL linkages)
-*RAG-Based Application (Retrieval-Augmented Generation)*
-Uses LLM with custom vector store for knowledge retrieval
-Queries processed data for insights like:
-What a job does
-Its upstream/downstream dependencies
-Business logic in COBOL
-*Knowledge Base + Query Layer*
-End-users can query the system for code understanding
-Supports semantic search, job lineage, purpose tracing
+package com.mycompany.langchain4jexample;
 
+import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
+import dev.langchain4j.model.output.Response;
+import dev.langchain4j.data.embedding.Embedding;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 
+public class EmbeddingToCSVExample {
 
+    public static void main(String[] args) {
+        // Step 1: Create model
+        AllMiniLmL6V2EmbeddingModel model = new AllMiniLmL6V2EmbeddingModel();
 
+        // Step 2: Example texts
+        String[] texts = {
+                "AI is changing the world.",
+                "LangChain4j helps use AI in Java.",
+                "Chroma is a local vector database."
+        };
 
-Refactored Problem Statement
-Problem Statement:
-Understanding and documenting legacy code—especially complex business logic in COBOL, Java, and Unix—is time-consuming and error-prone. Developers often overlook critical logic, resulting in poor documentation and limited knowledge transfer. This leads to outdated or inconsistent documentation and increases the risk of skipping essential documentation steps.
+        // Step 3: Create CSV file
+        String outputPath = "embeddings_output.csv";
 
-Goals:
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
+            // Write header
+            writer.write("text,embedding");
+            writer.newLine();
 
-Develop an automated tool to analyze COBOL, Java, and Unix code, extract business logic, and generate clear documentation.
-Ensure documentation is continuously updated in real-time with code changes.
-Simplify legacy code understanding and reduce the learning curve for developers.
-Improve knowledge sharing across the team.
-Challenges:
+            // Step 4: Process each text
+            for (String text : texts) {
+                // Generate embedding
+                Response<Embedding> response = model.embed(text);
+                float[] embedding = response.content().vector();
 
-High complexity and diversity in business logic across COBOL, Java, and Unix codebases.
-Ensuring the accuracy and completeness of extracted logic.
-Minimizing manual errors and streamlining the workflow.
-Seamless integration with existing development processes.
+                // Convert embedding array to string
+                String embeddingString = Arrays.toString(embedding);
 
+                // Write line to CSV
+                writer.write("\"" + text.replace("\"", "\"\"") + "\"," + embeddingString);
+                writer.newLine();
+            }
 
+            System.out.println("✅ Embeddings saved to: " + outputPath);
 
-
-Great — here's a professionally revised and consolidated version of your content, structured for clarity and better presentation, especially useful for a proposal, project document, or stakeholder communication:
-
----
-
-## **Automated Legacy Code Documentation Solution**
-
-### **Refined Problem Statement**
-
-Understanding and documenting legacy systems — particularly those involving complex business logic in **COBOL, Java, and Unix** — is time-consuming, error-prone, and often neglected. Critical business rules may be missed if documentation is outdated or incomplete, leading to **poor knowledge transfer**, **onboarding delays**, and **increased project risk**. Manual documentation is often skipped due to time constraints, further exacerbating inconsistency and reducing team efficiency.
-
-### **Proposed Solution**
-
-We propose an **automated documentation generation tool** that extracts business logic from legacy codebases (COBOL, Java, Unix) and produces **real-time, comprehensive, and human-readable documentation**. This solution addresses the "black box" nature of legacy systems and enhances visibility into core application logic for developers, testers, and business analysts.
-
-### **Key Goals**
-
-1. **Automate analysis** of COBOL, Java, and Unix code to extract business logic and workflows.
-2. **Generate accurate, up-to-date documentation** aligned with the source code in real-time.
-3. **Reduce time and effort** required for onboarding, analysis, and legacy modernization.
-4. **Promote consistency and collaboration** among developers, testers, and business users.
-
-### **Challenges Addressed**
-
-* Complexity and variability in legacy business logic.
-* Lack of alignment between documentation and actual code behavior.
-* Manual documentation errors and delays.
-* Integration of new tools into existing enterprise SDLC pipelines.
-
-### **Benefits to SDLC and Modernization**
-
-* **Faster requirement gathering** and domain understanding.
-* **Streamlined onboarding** for new developers and analysts.
-* Easier migration to **modern technologies** by exposing core business rules.
-* Supports **testing, auditing, support, and compliance** through clear documentation.
-* Reduces time and cost spent on **manual documentation and rework**.
-
-### **Outcome**
-
-By automating the documentation process, the solution improves efficiency, enhances accuracy, and enables teams to focus on innovation rather than reverse-engineering legacy code.
-
----
-
-
-
-
-
-Title	CodeInsight			
-Tab	Code Analysis			Document Download
-Each tab Content	Tree Structure(with search which will display separate folders for : autosys, unix, java, cobol). When autosys is clicked, its corresponding unix, java/cobol files will be loaded	Code -- For unix steps, For java methods , For Cobol perform statement	Its detailed analysis , including summary to be displayed 	Display only Autosys job in tree structure and when clicked, download the full autosys, unix, java/cobol into a word document
-		There should be a tree structure(with search) and when each method/step is clicked , its detailed analysis should be displayed 		Also, download option file wise
-	so, if process_data.jil is clicked, only the dependent unix, cobol/java files should be loaded. Ideally only autosys folder will contain all the jil files. Remaining folders will be loaded as per dependency 			
-
-
-Would you like me to generate a slide deck, executive summary, or visual diagram to go with this?
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
