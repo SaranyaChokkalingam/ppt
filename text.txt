@@ -1,53 +1,27 @@
-package com.mycompany.langchain4jexample;
+import csv
+import chromadb
 
-import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
-import dev.langchain4j.model.output.Response;
-import dev.langchain4j.data.embedding.Embedding;
+def main():
+    csv_file = "embeddings_clean.csv"
+    client = chromadb.Client()
+    collection = client.get_or_create_collection("my_java_embeddings")
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+    with open(csv_file, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        header = next(reader)  # skip header
 
-public class SaferEmbeddingToCSV {
+        for i, row in enumerate(reader):
+            text = row[0]
+            # Convert all remaining values to float list
+            embedding = [float(val) for val in row[1:]]
 
-    public static void main(String[] args) {
-        AllMiniLmL6V2EmbeddingModel model = new AllMiniLmL6V2EmbeddingModel();
+            collection.add(
+                documents=[text],
+                embeddings=[embedding],
+                ids=[f"id_{i}"]
+            )
 
-        String[] texts = {
-                "AI is transforming business.",
-                "LangChain4j helps Java work with AI models.",
-                "ChromaDB stores vector embeddings locally."
-        };
+    print(f"✅ Loaded {i+1} records into Chroma collection 'my_java_embeddings'.")
 
-        String outputPath = "embeddings_clean.csv";
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
-            // Write header: text + embedding columns
-            writer.write("text");
-            for (int i = 0; i < 384; i++) {   // usually MiniLM = 384 dims
-                writer.write(",val" + i);
-            }
-            writer.newLine();
-
-            // Write each row
-            for (String text : texts) {
-                Response<Embedding> response = model.embed(text);
-                float[] embedding = response.content().vector();
-
-                // Write text
-                writer.write("\"" + text.replace("\"", "\"\"") + "\"");
-
-                // Write each embedding value
-                for (float value : embedding) {
-                    writer.write("," + value);
-                }
-                writer.newLine();
-            }
-
-            System.out.println("✅ Clean CSV saved to: " + outputPath);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
+if __name__ == "__main__":
+    main()
