@@ -1,23 +1,73 @@
+import csv
 import chromadb
+from chromadb.config import Settings
+import os
 
 def main():
-    client = chromadb.Client()
-    collection = client.get_collection("my_java_embeddings")
+    csv_file = "embeddings_clean.csv"
 
-    query_text = "AI tools for Java developers"
-    # Normally you'd convert query_text → embedding (using same model as in Java)
-    # For demo: just search based on stored documents (text similarity is not as good)
+    # Use persistent Chroma DB
+    client = chromadb.Client(Settings(persist_directory="./chroma_store"))
+    collection = client.get_or_create_collection("my_java_embeddings")
 
-    # You can do fulltext-like search if embedding not possible
+    with open(csv_file, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        header = next(reader)
+
+        for i, row in enumerate(reader):
+            text = row[0]
+            embedding = [float(val) for val in row[1:]]
+
+            collection.add(
+                documents=[text],
+                embeddings=[embedding],
+                ids=[f"id_{i}"]
+            )
+
+    print(f"✅ Loaded {i+1} records into persistent Chroma collection 'my_java_embeddings'.")
+    os._exit(0)   # 💥 guaranteed immediate exit (avoids chromadb hanging)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print(f"❌ Error occurred: {e}")
+        os._exit(1)
+
+
+
+
+
+
+
+----
+
+import chromadb
+from chromadb.config import Settings
+import os
+
+def main():
+    # Use persistent Chroma DB
+    client = chromadb.Client(Settings(persist_directory="./chroma_store"))
+    collection = client.get_or_create_collection("my_java_embeddings")
+
+    query_text = input("🔎 Enter your search query: ")
+
     results = collection.query(
         query_texts=[query_text],
         n_results=3,
         include=["documents", "distances"]
     )
 
-    print("✅ Top matching documents:")
+    print("\n✅ Top matching documents:")
     for doc, distance in zip(results["documents"][0], results["distances"][0]):
         print(f"- {doc} (distance: {distance})")
 
+    os._exit(0)   # 💥 guaranteed immediate exit after query
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"❌ Error occurred: {e}")
+        os._exit(1)
