@@ -1,28 +1,23 @@
-import csv
 import chromadb
-import sys
 
 def main():
-    csv_file = "embeddings_clean.csv"
     client = chromadb.Client()
-    collection = client.get_or_create_collection("my_java_embeddings")
+    collection = client.get_collection("my_java_embeddings")
 
-    with open(csv_file, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        header = next(reader)
+    query_text = "AI tools for Java developers"
+    # Normally you'd convert query_text → embedding (using same model as in Java)
+    # For demo: just search based on stored documents (text similarity is not as good)
 
-        for i, row in enumerate(reader):
-            text = row[0]
-            embedding = [float(val) for val in row[1:]]
+    # You can do fulltext-like search if embedding not possible
+    results = collection.query(
+        query_texts=[query_text],
+        n_results=3,
+        include=["documents", "distances"]
+    )
 
-            collection.add(
-                documents=[text],
-                embeddings=[embedding],
-                ids=[f"id_{i}"]
-            )
-
-    print(f"✅ Loaded {i+1} records into Chroma collection 'my_java_embeddings'.")
-    sys.exit(0)   # ✅ Clean safe exit
+    print("✅ Top matching documents:")
+    for doc, distance in zip(results["documents"][0], results["distances"][0]):
+        print(f"- {doc} (distance: {distance})")
 
 if __name__ == "__main__":
     main()
