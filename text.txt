@@ -1,53 +1,44 @@
-package com.mycompany.langchain4jexample;
+import csv
+import ast
+import chromadb
 
-import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
-import dev.langchain4j.model.output.Response;
-import dev.langchain4j.data.embedding.Embedding;
+def load_embeddings_from_csv(csv_path):
+    texts = []
+    embeddings = []
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
+    with open(csv_path, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        next(reader)  # skip header
 
-public class EmbeddingToCSVExample {
+        for row in reader:
+            text = row[0]
+            embedding_str = row[1]
+            # Convert string "[0.23, -0.56, ...]" to list of floats
+            embedding = ast.literal_eval(embedding_str)
+            texts.append(text)
+            embeddings.append(embedding)
 
-    public static void main(String[] args) {
-        // Step 1: Create model
-        AllMiniLmL6V2EmbeddingModel model = new AllMiniLmL6V2EmbeddingModel();
+    return texts, embeddings
 
-        // Step 2: Example texts
-        String[] texts = {
-                "AI is changing the world.",
-                "LangChain4j helps use AI in Java.",
-                "Chroma is a local vector database."
-        };
+def main():
+    csv_file = "embeddings_output.csv"
 
-        // Step 3: Create CSV file
-        String outputPath = "embeddings_output.csv";
+    # Load data
+    texts, embeddings = load_embeddings_from_csv(csv_file)
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
-            // Write header
-            writer.write("text,embedding");
-            writer.newLine();
+    # Initialize chroma client
+    client = chromadb.Client()
+    collection = client.get_or_create_collection("my_java_embeddings")
 
-            // Step 4: Process each text
-            for (String text : texts) {
-                // Generate embedding
-                Response<Embedding> response = model.embed(text);
-                float[] embedding = response.content().vector();
+    # Add to collection
+    for i in range(len(texts)):
+        collection.add(
+            documents=[texts[i]],
+            embeddings=[embeddings[i]],
+            ids=[f"id_{i}"]
+        )
 
-                // Convert embedding array to string
-                String embeddingString = Arrays.toString(embedding);
+    print(f"✅ Loaded {len(texts)} records into Chroma DB collection 'my_java_embeddings'.")
 
-                // Write line to CSV
-                writer.write("\"" + text.replace("\"", "\"\"") + "\"," + embeddingString);
-                writer.newLine();
-            }
-
-            System.out.println("✅ Embeddings saved to: " + outputPath);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
+if __name__ == "__main__":
+    main()
